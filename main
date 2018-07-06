@@ -1,0 +1,138 @@
+<%-- <%@ tag body-content="empty" %> --%>
+
+
+<%@ attribute name="atributoId" required="true"%>
+
+
+<%@ attribute name="validatorId" required="false"%>
+
+
+<%@ attribute name="type" required="false"%>
+
+
+<%@ attribute name="validatorJS" required="false"%>
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+
+<%@ taglib uri="/WEB-INF/lib/widgets_allianz.jar" prefix="widget"%>
+
+
+
+<c:set var="id" value="${bloqueIdSep}${atributoId}" scope="request"/>
+
+
+<c:set var="atributo" value="${bloque.atributos[atributoId]}" scope="request"/>
+
+
+
+<c:set var="readonly" value="true" scope="request"/>
+
+
+<c:if test="${atributo.modificable && bloque.modificable}">
+
+
+	<c:set var="readonly" value="false" scope="request"/>
+
+
+</c:if>
+
+
+
+<c:set var="value" value="" scope="request"/>
+
+
+<c:if test="${!atributo.abstracto}">
+
+
+	<c:set var="value" value="${bloque[atributoId]}" scope="request"/>
+
+
+</c:if>
+
+
+
+<%-- Mensajes de Debug por Consola, comentar cuando se haga el Pase a Integracion o Producion 
+
+
+<jsp:useBean id="log" class="com.allianz.trenproduccion.util.LogUtil">
+
+
+	<c:set target="${log}" property="debug" value="  (${id}: Visible=${atributo.visible} Readonly=${readonly} Obliga=${atributo.obligatorio})" />
+
+
+</jsp:useBean>
+
+
+--%>
+
+
+
+<c:if test="${atributo.visible}" >
+
+
+	<jsp:doBody/>	
+
+
+	<c:if test="${atributo.obligatorio && (!atributo.abstracto)}">
+
+
+		<c:set var="attrValidId" value="${id}" scope="request"/>
+
+
+		<c:if test="${!empty validatorId}">
+
+
+			<c:set var="attrValidId" value="${bloqueIdSep}${validatorId}" scope="request"/>
+
+
+		</c:if>
+
+
+		<c:set var="funcValidJS" value="validate" scope="request"/>
+
+
+		<c:if test="${!empty validatorJS}">
+
+
+			<c:set var="funcValidJS" value="${validatorJS}" scope="request"/>
+
+
+		</c:if>		
+
+
+		<widget:code visibleResult="false">	
+
+
+	      <widget:validationDependent id="${attrValidId}" dependencyFunction="${funcValidJS}">
+
+
+	        <c:if test="${empty type}">
+
+
+	        	<widget:validationRequired id="${attrValidId}" errorKey="application.msg.error.campoObligatorio" />
+
+
+	        </c:if>
+
+
+	        <c:if test="${!empty type && type eq 'identificationNumber'}">
+
+
+	        	<widget:validationFunction id="${attrValidId}" name="validateIdentificationNumberRequired" errorKey="application.msg.error.campoObligatorio" />
+
+
+	        </c:if>	
+
+
+	      </widget:validationDependent>
+
+
+	    </widget:code> 
+
+
+	</c:if>       	
+
+
+</c:if>
